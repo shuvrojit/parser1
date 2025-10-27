@@ -1,91 +1,9 @@
 /**
  * Comprehensive tests for PDF parser including URL parsing
  */
-import * as fs from 'fs';
 import * as http from 'http';
 import { parsePDF, parsePDFFromURL, extractText, extractTextFromPDFURL } from '../index';
-
-// Create a minimal valid PDF for testing
-function createMinimalPDF(): Uint8Array {
-  // Build PDF with correct offsets
-  const parts: string[] = [];
-  const offsets: number[] = [0]; // Object 0 is always unused
-  
-  parts.push('%PDF-1.4\n');
-  
-  // Object 1: Catalog
-  offsets.push(parts.join('').length);
-  parts.push('1 0 obj\n');
-  parts.push('<<\n');
-  parts.push('/Type /Catalog\n');
-  parts.push('/Pages 2 0 R\n');
-  parts.push('>>\n');
-  parts.push('endobj\n');
-  
-  // Object 2: Pages
-  offsets.push(parts.join('').length);
-  parts.push('2 0 obj\n');
-  parts.push('<<\n');
-  parts.push('/Type /Pages\n');
-  parts.push('/Kids [3 0 R]\n');
-  parts.push('/Count 1\n');
-  parts.push('>>\n');
-  parts.push('endobj\n');
-  
-  // Object 3: Page
-  offsets.push(parts.join('').length);
-  parts.push('3 0 obj\n');
-  parts.push('<<\n');
-  parts.push('/Type /Page\n');
-  parts.push('/Parent 2 0 R\n');
-  parts.push('/Resources <<\n');
-  parts.push('/Font <<\n');
-  parts.push('/F1 <<\n');
-  parts.push('/Type /Font\n');
-  parts.push('/Subtype /Type1\n');
-  parts.push('/BaseFont /Helvetica\n');
-  parts.push('>>\n');
-  parts.push('>>\n');
-  parts.push('>>\n');
-  parts.push('/MediaBox [0 0 612 792]\n');
-  parts.push('/Contents 4 0 R\n');
-  parts.push('>>\n');
-  parts.push('endobj\n');
-  
-  // Object 4: Content Stream
-  const streamContent = 'BT\n/F1 12 Tf\n100 700 Td\n(Hello from URL!) Tj\nET\n';
-  offsets.push(parts.join('').length);
-  parts.push('4 0 obj\n');
-  parts.push('<<\n');
-  parts.push(`/Length ${streamContent.length}\n`);
-  parts.push('>>\n');
-  parts.push('stream\n');
-  parts.push(streamContent);
-  parts.push('endstream\n');
-  parts.push('endobj\n');
-  
-  // Cross-reference table
-  const xrefPos = parts.join('').length;
-  parts.push('xref\n');
-  parts.push('0 5\n');
-  parts.push('0000000000 65535 f \n');
-  for (let i = 1; i < offsets.length; i++) {
-    const offset = offsets[i].toString().padStart(10, '0');
-    parts.push(`${offset} 00000 n \n`);
-  }
-  
-  // Trailer
-  parts.push('trailer\n');
-  parts.push('<<\n');
-  parts.push('/Size 5\n');
-  parts.push('/Root 1 0 R\n');
-  parts.push('>>\n');
-  parts.push('startxref\n');
-  parts.push(`${xrefPos}\n`);
-  parts.push('%%EOF');
-  
-  return new TextEncoder().encode(parts.join(''));
-}
+import { createMinimalPDF } from './test-utils';
 
 // Start a simple HTTP server for testing
 function startTestServer(pdfData: Buffer): Promise<{ server: http.Server; port: number }> {
@@ -127,7 +45,7 @@ async function runTests() {
     // Test 1: Parse minimal PDF from Uint8Array
     testsRun++;
     console.log('Test 1: Parsing minimal PDF from Uint8Array...');
-    const pdfData = createMinimalPDF();
+    const pdfData = createMinimalPDF('Hello from URL!');
     const doc = parsePDF(pdfData);
     
     if (doc.version && doc.objects.size > 0 && doc.trailer.size) {
@@ -231,6 +149,38 @@ async function runTests() {
     } catch (error) {
       if (error instanceof Error && error.message.includes('HTTP 404')) {
         console.log('✓ Error handling for invalid URL works correctly');
+        console.log(`  Error: ${error.message}`);
+        testsPassed++;
+      } else {
+        throw error;
+      }
+    }
+
+    // Test 9: Test URL validation - invalid protocol
+    testsRun++;
+    console.log('\nTest 9: Testing URL validation for invalid protocol...');
+    try {
+      await parsePDFFromURL('ftp://example.com/test.pdf');
+      throw new Error('Should have thrown an error for invalid protocol');
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('HTTP and HTTPS protocols')) {
+        console.log('✓ URL validation for invalid protocol works correctly');
+        console.log(`  Error: ${error.message}`);
+        testsPassed++;
+      } else {
+        throw error;
+      }
+    }
+
+    // Test 10: Test URL validation - empty URL
+    testsRun++;
+    console.log('\nTest 10: Testing URL validation for empty URL...');
+    try {
+      await parsePDFFromURL('');
+      throw new Error('Should have thrown an error for empty URL');
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('non-empty string')) {
+        console.log('✓ URL validation for empty URL works correctly');
         console.log(`  Error: ${error.message}`);
         testsPassed++;
       } else {

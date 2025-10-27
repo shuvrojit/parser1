@@ -67,21 +67,43 @@ export function extractText(doc: PDFDocument): string {
 /**
  * Fetch data from a URL
  */
-function fetchFromURL(url: string): Promise<Buffer> {
+function fetchFromURL(url: string, redirectCount = 0): Promise<Buffer> {
+  const MAX_REDIRECTS = 10;
+
   return new Promise((resolve, reject) => {
+    // Validate URL
+    if (!url || typeof url !== 'string') {
+      reject(new Error('Invalid URL: URL must be a non-empty string'));
+      return;
+    }
+
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      reject(new Error('Invalid URL: Only HTTP and HTTPS protocols are supported'));
+      return;
+    }
+
     const protocol = url.startsWith('https') ? https : http;
     
     protocol.get(url, (response) => {
       // Handle redirects
       if (response.statusCode === 301 || response.statusCode === 302) {
-        if (response.headers.location) {
-          // Resolve relative URLs
-          const redirectUrl = response.headers.location.startsWith('http') 
-            ? response.headers.location 
-            : new URL(response.headers.location, url).href;
-          fetchFromURL(redirectUrl).then(resolve).catch(reject);
+        if (redirectCount >= MAX_REDIRECTS) {
+          reject(new Error(`Too many redirects: Maximum of ${MAX_REDIRECTS} redirects exceeded`));
           return;
         }
+
+        const location = response.headers.location;
+        if (!location || location.trim() === '') {
+          reject(new Error('Redirect failed: Empty location header'));
+          return;
+        }
+
+        // Resolve relative URLs
+        const redirectUrl = location.startsWith('http') 
+          ? location 
+          : new URL(location, url).href;
+        fetchFromURL(redirectUrl, redirectCount + 1).then(resolve).catch(reject);
+        return;
       }
 
       if (response.statusCode !== 200) {
