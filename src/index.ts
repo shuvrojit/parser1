@@ -93,7 +93,7 @@ function fetchFromURL(url: string, redirectCount = 0): Promise<Buffer> {
         }
 
         const location = response.headers.location;
-        if (!location || location.trim() === '') {
+        if (!location?.trim()) {
           reject(new Error('Redirect failed: Empty location header'));
           return;
         }
