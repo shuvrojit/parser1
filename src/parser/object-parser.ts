@@ -220,7 +220,7 @@ export class PDFObjectParser {
     // Convert hex to string
     let result = '';
     for (let i = 0; i < hex.length; i += 2) {
-      const byte = hex.substr(i, 2);
+      const byte = hex.substring(i, i + 2);
       result += String.fromCharCode(parseInt(byte.padEnd(2, '0'), 16));
     }
 
