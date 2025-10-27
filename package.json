@@ -1,0 +1,19 @@
+{
+  "name": "parser1",
+  "version": "1.0.0",
+  "description": "A PDF parser from scratch in TypeScript with no external dependencies",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "node dist/examples/test.js",
+    "example": "node dist/examples/example.js"
+  },
+  "keywords": ["pdf", "parser", "typescript"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^24.9.1",
+    "typescript": "^5.9.3"
+  }
+}
