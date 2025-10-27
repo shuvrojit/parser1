@@ -129,28 +129,23 @@ export class ZIPParser {
    */
   private inflateData(compressedData: Uint8Array, uncompressedSize: number): Uint8Array {
     try {
-      // Use Node.js zlib if available (for server-side)
-      if (typeof require !== 'undefined') {
-        try {
-          const zlib = require('zlib');
-          const buffer = Buffer.from(compressedData);
-          const inflated = zlib.inflateRawSync(buffer);
-          return new Uint8Array(inflated);
-        } catch (e) {
-          // Fall through to DecompressionStream
-        }
-      }
-
-      // Use Web API DecompressionStream if available (for browser)
-      if (typeof DecompressionStream !== 'undefined') {
-        // This is async, but we need sync - throw error
-        throw new Error('DecompressionStream requires async operation - use Node.js environment');
-      }
-
-      throw new Error('No decompression method available - requires Node.js zlib');
+      return this.tryNodejsDecompression(compressedData);
     } catch (e) {
-      throw new Error(`Failed to decompress data: ${e}`);
+      throw new Error(`Failed to decompress data: ${e}. Requires Node.js environment with zlib.`);
     }
+  }
+
+  /**
+   * Try Node.js zlib decompression
+   */
+  private tryNodejsDecompression(compressedData: Uint8Array): Uint8Array {
+    if (typeof require !== 'undefined') {
+      const zlib = require('zlib');
+      const buffer = Buffer.from(compressedData);
+      const inflated = zlib.inflateRawSync(buffer);
+      return new Uint8Array(inflated);
+    }
+    throw new Error('Node.js zlib not available');
   }
 
   /**

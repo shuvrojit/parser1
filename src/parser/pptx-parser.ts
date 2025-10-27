@@ -102,7 +102,8 @@ export class PPTXParser {
         const slide = this.parseSlide(entries, slideFile, slideNumber);
         slides.push(slide);
       } catch (e) {
-        console.warn(`Failed to parse slide ${slideNumber}:`, e);
+        // Skip slides that fail to parse - they may be malformed or use unsupported features
+        // Continue parsing remaining slides
       }
     }
 

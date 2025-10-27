@@ -1,7 +1,7 @@
 /**
  * Example usage of the PPTX parser
  */
-import { parsePPTX, extractPPTXText, PPTXParser } from '../index';
+import { parsePPTX, extractPPTXText } from '../index';
 import * as fs from 'fs';
 
 // Create a minimal PPTX file for testing
