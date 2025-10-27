@@ -6,6 +6,7 @@ A PDF parser written from scratch in TypeScript with **no external dependencies*
 
 - 🚀 **Pure TypeScript** - Written entirely in TypeScript with no external libraries
 - 📄 **PDF Parsing** - Parse PDF files and extract document structure
+- 🌐 **URL Support** - Parse PDFs directly from HTTP/HTTPS URLs
 - 📝 **Text Extraction** - Extract text content from PDF documents
 - 🔍 **Object Inspection** - Access PDF objects, dictionaries, arrays, and streams
 - ⚡ **Lightweight** - No dependencies on external PDF libraries
@@ -42,6 +43,20 @@ const text = extractText(doc);
 console.log(text);
 ```
 
+### Parse PDF from URL
+
+```typescript
+import { parsePDFFromURL, extractTextFromPDFURL } from './dist/index';
+
+// Parse PDF from URL
+const doc = await parsePDFFromURL('https://example.com/document.pdf');
+console.log(`PDF Version: ${doc.version}`);
+
+// Extract text from URL directly
+const text = await extractTextFromPDFURL('https://example.com/document.pdf');
+console.log(text);
+```
+
 ### Parse and Inspect PDF Structure
 
 ```typescript
@@ -69,7 +84,9 @@ npm run example
 
 Run the tests:
 ```bash
-npm test
+npm test          # Run basic tests
+npm run test:url  # Run URL parsing tests
+npm run test:all  # Run all tests
 ```
 
 ## API Reference
@@ -79,7 +96,9 @@ npm test
 - `parsePDF(data: Uint8Array): PDFDocument` - Parse a PDF from bytes
 - `parsePDFFile(filePath: string): PDFDocument` - Parse a PDF from file path
 - `parsePDFBuffer(buffer: Buffer): PDFDocument` - Parse a PDF from Node.js Buffer
+- `parsePDFFromURL(url: string): Promise<PDFDocument>` - Parse a PDF from URL (async)
 - `extractText(doc: PDFDocument): string` - Extract text from a parsed PDF document
+- `extractTextFromPDFURL(url: string): Promise<string>` - Extract text from PDF at URL (async)
 
 ### Classes
 
