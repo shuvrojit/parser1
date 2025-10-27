@@ -1,7 +1,7 @@
 {
   "name": "parser1",
   "version": "1.0.0",
-  "description": "A PDF parser from scratch in TypeScript with no external dependencies",
+  "description": "A document parser (PDF and PPTX) from scratch in TypeScript with no external dependencies",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -9,7 +9,7 @@
     "test": "node dist/examples/test.js",
     "example": "node dist/examples/example.js"
   },
-  "keywords": ["pdf", "parser", "typescript"],
+  "keywords": ["pdf", "pptx", "powerpoint", "parser", "typescript", "office", "document"],
   "author": "",
   "license": "ISC",
   "devDependencies": {
