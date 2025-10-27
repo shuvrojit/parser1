@@ -7,7 +7,10 @@
   "scripts": {
     "build": "tsc",
     "test": "node dist/examples/test.js",
-    "example": "node dist/examples/example.js"
+    "test:url": "node dist/examples/test-url.js",
+    "test:all": "npm test && npm run test:url",
+    "example": "node dist/examples/example.js",
+    "example:url": "node dist/examples/example-url.js"
   },
   "keywords": ["pdf", "parser", "typescript"],
   "author": "",
